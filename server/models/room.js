@@ -14,8 +14,24 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Room.init({
-    name: DataTypes.STRING,
-    type: DataTypes.STRING,
+    name: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          args: true,
+          msg: 'Input your name!'
+        }
+      }
+    },
+    type: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          args: true,
+          msg: 'Input room type!'
+        }
+      }
+    },
     status: DataTypes.STRING,
     UserId: DataTypes.INTEGER
   }, {
