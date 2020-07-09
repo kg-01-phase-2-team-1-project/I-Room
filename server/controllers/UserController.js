@@ -27,7 +27,8 @@ class UserController {
                 }
                 const token = signToken(payload)
                 res.status(200).json({
-                    token
+                    token,
+                    role: user.role
                 })
             }
         } catch (err) {
