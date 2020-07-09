@@ -15,7 +15,9 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "google-auth-library": "^6.0.3",
+    "holidayapi": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
+    "mailgun-js": "^0.22.0",
     "pg": "^8.2.2",
     "sequelize": "^6.3.0"
   },
