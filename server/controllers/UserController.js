@@ -3,6 +3,7 @@ const { User } = require('../models/index')
 const { comparePass } = require('../helpers/bcrypt')
 const { signToken } = require('../helpers/jwt')
 const { verify } = require('../helpers/googleOauth')
+const { sendEmail } = require('../helpers/mailgun')
 
 class UserController {
     static async login(req, res, next) {
@@ -46,12 +47,19 @@ class UserController {
         }
         try {
             const user = await User.create(newUser)
-            const payload = {
-                email: user.email
-            }
-            const token = signToken(payload)
+            
+            // const payload = {
+            //     email: user.email
+            // }
+            sendEmail(user.email, `Thank you ${user.firstname} ${user.lastname} for choosing us!`)
+            // const token = signToken(payload)
             res.status(201).json({
-                token
+                id: user.id,
+                email: user.email,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                birthOfDate: user.birthOfDate,
+                role: user.role
             })
         } catch (err) {
             if (err.name === 'SequelizeValidationError') {

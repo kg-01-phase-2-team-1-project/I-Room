@@ -77,7 +77,8 @@ class RoomController {
         const paramId = Number(req.params.id);
 
         const objRoom = {
-            status: 'Unoccupied'
+            status: 'Unoccupied',
+            UserId: null
         };
 
         try {
@@ -108,7 +109,8 @@ class RoomController {
         const paramId = Number(req.params.id);
 
         const objRoom = {
-            status: 'Occupied'
+            status: 'Occupied',
+            UserId: req.userLogin.id
         };
 
         try {
