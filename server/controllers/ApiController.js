@@ -1,5 +1,6 @@
 require('dotenv').config()
 const axios = require('axios')
+const { HolidayAPI } = require('holidayapi');
 
 class ApiController {
     static weather(req, res) {
@@ -12,6 +13,19 @@ class ApiController {
         }).catch(err => {
             next(err)
         });
+    }
+
+    static async holiday(req, res, next) {
+        
+        const key = process.env.HOLIDAY_API_KEY;
+        const holidayApi = new HolidayAPI({ key });
+        try {
+            const holidays = await holidayApi.countries();
+            
+            res.status(200).json(holidays);
+        } catch (error) {
+            next(err);
+        }
     }
 }
 module.exports = ApiController

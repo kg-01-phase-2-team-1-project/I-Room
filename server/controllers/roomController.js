@@ -105,20 +105,20 @@ class RoomController {
         }
     }
 
-    static async getRoomBookingHandler(req, res, next) {
-        try {
-            const rooms = await Room.findAll({
-                where: {
-                    status: 'Unoccupied',
-                    UserId: null
-                }
-            });
+    // static async getRoomBookingHandler(req, res, next) {
+    //     try {
+    //         const rooms = await Room.findAll({
+    //             where: {
+    //                 status: 'Unoccupied',
+    //                 UserId: null
+    //             }
+    //         });
 
-            res.status(200).json(rooms);
-        } catch (error) {
-            next(error);
-        }
-    }
+    //         res.status(200).json(rooms);
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
 
     static async putRoomBookingHandler(req, res, next) {
         const paramId = Number(req.params.id);

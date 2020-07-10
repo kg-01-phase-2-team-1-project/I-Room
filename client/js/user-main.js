@@ -91,6 +91,8 @@ function customerPage() {
     $('#addroom-page').hide()
 
     $('#logout-nav').show()
+    $('#content-list').show()
+    $('#weatherShow').show()
 
     fetchData()
     fetchWeather()
@@ -106,7 +108,8 @@ function adminPage() {
 
     $('#add-room-nav').show()
     $('#logout-nav').show()
-    $('#add-room').show()
+    $('#content-list').show()
+    $('#weatherShow').show()
 
     fetchData()
     fetchWeather()
@@ -122,6 +125,8 @@ function homePage() {
     $('#homepage-nav').show()
     $('#login-nav').show()
     $('#register-nav').show()
+    $('#content-list').show()
+    $('#weatherShow').show()
 
     $('#show-alert').empty()
     $('#show-alert').append(`
@@ -138,7 +143,10 @@ function fetchData() {
     $('#room-list').empty()
     $.ajax({
         method: 'GET',
-        url: `${SERVER_PATH}/room`
+        url: `${SERVER_PATH}/room`,
+        headers: {
+
+        }
     })
     .done((response) => {
         console.log('done')
@@ -151,8 +159,11 @@ function fetchData() {
             `)
         } else {
             if (localStorage.getItem('role') === 'admin') {
+                
+                
                 response.forEach(room => {
-                    if (room.status == 'Unoccupied') {
+                    
+                    if (room.status === 'Unoccupied') {
                         $('#room-list').append(`
                         <div class="col-sm-4 my-3">
                             <div class="card">
@@ -162,7 +173,7 @@ function fetchData() {
                                 <div class="card-body">
                                 <h1 class="card-title font-weight-bold">${room.name}</h1>
                                 <p class="card-text font-weight-bold">Status room : ${room.status}</p>
-                                <a href="#" class="btn btn-primary font-weight-bold">edit room</a>
+                                <a href="#" id="edit-button-admin" class="btn btn-primary font-weight-bold" data-room-id="${room.id}>edit room</a>
                                 </div>
                             </div>
                         </div>
@@ -177,7 +188,7 @@ function fetchData() {
                                 <div class="card-body">
                                 <h1 class="card-title font-weight-bold">${room.name}</h1>
                                 <p class="card-text font-weight-bold">Status room : ${room.status}</p>
-                                <a href="#" class="btn btn-primary font-weight-bold">edit room</a> <a href="#" class="btn btn-primary font-weight-bold">checkout</a>
+                                <a href="#" id="edit-button-admin" class="btn btn-primary font-weight-bold" data-room-id="${room.id}>edit room</a> <a href="#" id="checkout-button-admin" class="btn btn-primary font-weight-bold" data-room-id="${room.id}>checkout</a>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +206,7 @@ function fetchData() {
                                 </div>
                                 <div class="card-body">
                                 <h1 class="card-title font-weight-bold">${room.name}</h1>
-                                <a href="#" class="btn btn-primary font-weight-bold">book</a>
+                                <a href="#" id="book-button" class="btn btn-primary font-weight-bold">book</a>
                                 </div>
                             </div>
                         </div>
@@ -273,6 +284,7 @@ $(document).ready(() => {
     checkLogin()
     
     $('#login-form').submit(function (event) {
+        event.preventDefault();
         const email = $('#login-email').val()
         const password = $('#login-password').val()
         $.ajax({
@@ -288,17 +300,19 @@ $(document).ready(() => {
             console.log(response)
             localStorage.setItem('token', response.token)
             localStorage.setItem('role', response.role)
-            if (response.role === 'admin') {
-                adminPage()
-            } else {
-                customerPage()
-            } 
+            $('#login-email').val('')
+            $('#login-password').val('') 
             $('#show-alert').empty()
             $('#show-alert').append(`
             <div class="alert alert-success" role="alert">
                 <strong>Success.</strong> Success login with ${email}
             </div>
             `)
+            if (response.role === 'admin') {
+                adminPage()
+            } else {
+                customerPage()
+            }
         })
         .fail((xhr, status, error) => {
             console.log('fail')
@@ -340,7 +354,7 @@ $(document).ready(() => {
                 <strong>Success.</strong> Success Register with this ${user.email}
             </div>
             `)
-            customerPage()
+            homePage()
         })
         .fail((xhr, status, error) => {
             console.log('fail')
@@ -360,6 +374,7 @@ $(document).ready(() => {
 
     $('#logout-nav').click(function (event) {
         localStorage.removeItem('token')
+        localStorage.removeItem('role')
         googleSignOut()
         $('#show-alert').empty()
         $('#show-alert').append(`
@@ -367,8 +382,8 @@ $(document).ready(() => {
             <strong>Success.</strong> Success logout
         </div>
         `)
-        showLogin()
         event.preventDefault()
+        showLogin()
     })
 
     $('#register-nav').click(function (event) {
