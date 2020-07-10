@@ -17,6 +17,9 @@ function showLogin() {
     $('#logout-nav').hide()
     $('#login-nav').hide()
     $('#content-list').hide()
+    $('#weatherShow').hide()
+    $('#add-room-nav').hide()
+    $('#addroom-page').hide()
     
     $('#homepage-nav').show()
     $('#login-page').show()
@@ -69,6 +72,9 @@ function showRegister() {
     $('#register-nav').hide()
     $('#logout-nav').hide()
     $('#content-list').hide()
+    $('#weatherShow').hide()
+    $('#add-room-nav').hide()
+    $('#addroom-page').hide()
     
     $('#homepage-nav').show()
     $('#login-nav').show()
@@ -80,12 +86,14 @@ function customerPage() {
     $('#register-nav').hide()
     $('#login-nav').hide()
     $('#register-page').hide()
-    $('#add-room').hide()
+    $('#add-room-nav').hide()
     $('#homepage-nav').hide()
+    $('#addroom-page').hide()
 
     $('#logout-nav').show()
 
     fetchData()
+    fetchWeather()
 }
 
 function adminPage() {
@@ -94,20 +102,24 @@ function adminPage() {
     $('#login-nav').hide()
     $('#register-page').hide()
     $('#homepage-nav').hide()
+    $('#addroom-page').hide()
 
+    $('#add-room-nav').show()
     $('#logout-nav').show()
     $('#add-room').show()
 
     fetchData()
+    fetchWeather()
 }
 
 function homePage() {
     $('#logout-nav').hide()
-    $('#add-room').hide()
+    $('#add-room-nav').hide()
     $('#register-page').hide()
     $('#login-page').hide()
+    $('#addroom-page').hide()
+
     $('#homepage-nav').show()
-    
     $('#login-nav').show()
     $('#register-nav').show()
 
@@ -119,6 +131,7 @@ function homePage() {
     `)
     
     fetchData()
+    fetchWeather()
 }
 
 function fetchData() {
@@ -205,6 +218,55 @@ function fetchData() {
         console.log('always')
         console.log(response)
     })
+}
+
+function fetchWeather() {
+    $('#weatherShow').empty()
+    $.ajax({
+        method: 'GET',
+        url: `${SERVER_PATH}/api/weather`
+    })
+    .done((response) => {
+        console.log('weather done')
+        console.log(response)
+        $('#weatherShow').append(`
+        <div class="col-sm-12 col-md-12" style="padding-left: 0; padding-right: 0; z-index:1;">
+            <div class="card">
+                <div class="card-header font-weight-bold">
+                    ${response.location.name}, ${response.location.region}, ${response.location.country}
+                </div>
+                <div class="card-body">
+                <h1 class="card-title font-weight-bold">${response.current.temperature}° C</h1>
+                <p class="card-text font-weight-bold">${response.current.weather_descriptions} </p>
+                <img src="${response.current.weather_icons}" alt="weather">
+                </div>
+            </div>
+        </div>
+        `)
+    })
+    .fail((xhr, status, error) => {
+        console.log('fail')
+        console.log(xhr.responseJSON, status, error)
+    })
+    .always((response) => {
+        console.log('weather always')
+        console.log(response)
+    })
+}
+
+function showAddRoom() {
+    $('#login-page').hide()
+    $('#register-nav').hide()
+    $('#login-nav').hide()
+    $('#register-page').hide()
+    $('#homepage-nav').hide()
+    $('#content-list').hide()
+    $('#weatherShow').hide()
+    
+    $('#addroom-page').show()
+    $('#add-room-nav').show()
+    $('#logout-nav').show()
+    $('#add-room').show()
 }
 
 $(document).ready(() => {
@@ -313,12 +375,59 @@ $(document).ready(() => {
         showRegister()
         event.preventDefault()
     })
+
+    $('#addroom-form').submit(function(event) {
+        const name = $('#addroom-name').val()
+        const type = $('#addroom-type').val()
+        $.ajax({
+            method: 'POST',
+            url: `${SERVER_PATH}/room/add`,
+            headers: {
+                token: localStorage.getItem('token')
+            },
+            data: {
+                name,
+                type
+            }
+        })
+        .done((response) => {
+            console.log('done')
+            console.log(response)
+            $('#show-alert').empty()
+            $('#show-alert').append(`
+            <div class="alert alert-success" role="alert">
+                <strong>Success.</strong> Success add room ${name}
+            </div>
+            `)
+            adminPage()
+        })
+        .fail((xhr, status, error) => {
+            console.log('fail')
+            console.log(xhr.responseJSON, status, error)
+            $('#show-alert').empty()
+            $('#show-alert').append(`
+            <div class="alert alert-danger" role="alert">
+                <strong>Error.</strong> ${xhr.responseJSON.errors}
+            </div>
+            `)
+        })
+        .always((response) => {
+            console.log('always')
+            console.log(response)
+        })
+        event.preventDefault()
+    })
+
     $('#login-nav').click(function (event) {
         showLogin()
         event.preventDefault()
     })
     $('#homepage-nav').click(function (event) {
         homePage()
+        event.preventDefault()
+    })
+    $('#add-room-nav').click(function (event) {
+        showAddRoom()
         event.preventDefault()
     })
 })
