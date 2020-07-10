@@ -36,18 +36,34 @@ async function isAdmin(req, res, next) {
     try {
         if(req.userLogin.role !== 'admin') {
             res.status(401).json({
-                error: 'only be accessed by admin'
+                message: `You don't have permission to access`
             })
         } else {
             next()
         }
     } catch (err) {
         res.status(500).json({
-            error: 'invalid server error'
+            error: 'Internal Server Error'
+        })
+    }
+}
+
+async function isCustomer(req, res, next) {
+    try {
+        if(req.userLogin.role !== 'customer') {
+            res.status(401).json({
+                message: `You don't have permission to access`
+            })
+        } else {
+            next()
+        }
+    } catch (err) {
+        res.status(500).json({
+            error: 'Internal Server Error'
         })
     }
 }
 
 module.exports = {
-    auth, isAdmin
+    auth, isAdmin, isCustomer
 }

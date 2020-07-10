@@ -90,7 +90,7 @@ class RoomController {
             })
 
             if(room[0] === 1) {
-                const result = todo[1];
+                const result = room[1];
                 const updatedData = result[0];
                 res.status(200).json(updatedData);
             } else {
@@ -100,6 +100,21 @@ class RoomController {
                 });
             }
 
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getRoomBookingHandler(req, res, next) {
+        try {
+            const rooms = await Room.findAll({
+                where: {
+                    status: 'Unoccupied',
+                    UserId: null
+                }
+            });
+
+            res.status(200).json(rooms);
         } catch (error) {
             next(error);
         }
@@ -122,7 +137,7 @@ class RoomController {
             })
 
             if(room[0] === 1) {
-                const result = todo[1];
+                const result = room[1];
                 const updatedData = result[0];
                 res.status(200).json(updatedData);
             } else {
