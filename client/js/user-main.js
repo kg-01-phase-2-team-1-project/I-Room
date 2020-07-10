@@ -143,10 +143,7 @@ function fetchData() {
     $('#room-list').empty()
     $.ajax({
         method: 'GET',
-        url: `${SERVER_PATH}/room`,
-        headers: {
-
-        }
+        url: `${SERVER_PATH}/room`
     })
     .done((response) => {
         console.log('done')
@@ -171,13 +168,13 @@ function fetchData() {
                                     ${room.type}
                                 </div>
                                 <div class="card-body">
-                                <h1 class="card-title font-weight-bold">${room.name}</h1>
-                                <p class="card-text font-weight-bold">Status room : ${room.status}</p>
-                                <a href="#" id="edit-button-admin" class="btn btn-primary font-weight-bold" data-room-id="${room.id}>edit room</a>
+                                    <h1 class="card-title font-weight-bold">${room.name}</h1>
+                                    <p class="card-text font-weight-bold">Status room : ${room.status}</p>
                                 </div>
                             </div>
                         </div>
                         `)
+                        // <a id="edit-button-${room.id}" class="btn btn-primary font-weight-bold" data-room-id="${room.id}" data-toggle="modal" data-target="#editModal">edit room</a>
                     } else {
                         $('#room-list').append(`
                         <div class="col-sm-4 my-3">
@@ -188,11 +185,26 @@ function fetchData() {
                                 <div class="card-body">
                                 <h1 class="card-title font-weight-bold">${room.name}</h1>
                                 <p class="card-text font-weight-bold">Status room : ${room.status}</p>
-                                <a href="#" id="edit-button-admin" class="btn btn-primary font-weight-bold" data-room-id="${room.id}>edit room</a> <a href="#" id="checkout-button-admin" class="btn btn-primary font-weight-bold" data-room-id="${room.id}>checkout</a>
+                                <a id="checkout-button-${room.id}" class="btn btn-primary font-weight-bold" data-room-id="${room.id}">checkout</a>
                                 </div>
                             </div>
                         </div>
                         `)
+
+                        $(`#checkout-button-${room.id}`).click(function (event) {
+                            const id = Number($(this).data('room-id'));
+                            console.log(id);
+                            
+                            softDelete(id);
+                            event.preventDefault()
+                        })
+
+                        $(`#edit-button-${room.id}`).click(function (event) {
+                            const id = Number($(this).data('room-id'));
+                            fetchDataById(id);
+
+                            event.preventDefault();
+                        })
                     }
                 })
             } else {
@@ -206,11 +218,16 @@ function fetchData() {
                                 </div>
                                 <div class="card-body">
                                 <h1 class="card-title font-weight-bold">${room.name}</h1>
-                                <a href="#" id="book-button" class="btn btn-primary font-weight-bold">book</a>
+                                <a href="#" id="book-button-${room.id}" class="btn btn-primary font-weight-bold" data-room-id="${room.id}">book</a>
                                 </div>
                             </div>
                         </div>
                         `)
+                        $(`#book-button-${room.id}`).click(function (event) {
+                            const id = Number($(this).data('room-id'));
+                            booking(id);
+                            event.preventDefault()
+                        })
                     }
                 })
             }
@@ -227,6 +244,98 @@ function fetchData() {
     })
     .always((response) => {
         console.log('always')
+        console.log(response)
+    })
+}
+
+function fetchDataById(id) {
+    $.ajax({
+        method: 'GET',
+        url: `${SERVER_PATH}/room/update/${id}`,
+        headers: {
+            token: localStorage.getItem('token')
+        }
+    })
+    .done((response) => {
+        console.log('weather done')
+        console.log(response)
+        $('#name-edit').val(response.name)
+    })
+    .fail((xhr, status, error) => {
+        console.log('fail')
+        console.log(xhr.responseJSON, status, error)
+    })
+    .always((response) => {
+        console.log('weather always')
+        console.log(response)
+    })
+}
+
+function update(id) {
+    $.ajax({
+        method: 'PUT',
+        url: `${SERVER_PATH}/room/update/${id}`,
+        headers: {
+            token: localStorage.getItem('token')
+        }
+    })
+    .done((response) => {
+        console.log('weather done')
+        console.log(response)
+        adminPage()
+    })
+    .fail((xhr, status, error) => {
+        console.log('fail')
+        console.log(xhr.responseJSON, status, error)
+    })
+    .always((response) => {
+        console.log('weather always')
+        console.log(response)
+    })
+}
+
+function softDelete(id) {
+    $.ajax({
+        method: 'PUT',
+        url: `${SERVER_PATH}/room/delete/${id}`,
+        headers: {
+            token: localStorage.getItem('token')
+        }
+    })
+    .done((response) => {
+        console.log('weather done')
+        console.log(response)
+        adminPage();
+    })
+    .fail((xhr, status, error) => {
+        console.log('fail')
+        console.log(xhr.responseJSON, status, error)
+    })
+    .always((response) => {
+        console.log('weather always')
+        console.log(response)
+    })
+}
+
+function booking(id) {
+    $.ajax({
+        method: 'PUT',
+        url: `${SERVER_PATH}/room/booking/${id}`,
+        headers: {
+            token: localStorage.getItem('token')
+        }
+    })
+    .done((response) => {
+        console.log('weather done')
+        console.log(response)
+        customerPage()
+    })
+    .fail((xhr, status, error) => {
+        console.log('fail')
+        console.log(xhr.responseJSON, status, error)
+    })
+    .always((response) => {
+        console.log('weather always')
         console.log(response)
     })
 }
@@ -282,7 +391,7 @@ function showAddRoom() {
 
 $(document).ready(() => {
     checkLogin()
-    
+    let selectedRoom = null;
     $('#login-form').submit(function (event) {
         event.preventDefault();
         const email = $('#login-email').val()
